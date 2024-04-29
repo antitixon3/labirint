@@ -3,8 +3,8 @@ from py.frontend.PYGAMEwindow import PYGAMEwindow as Window
 from py.api import *
 import math
 
-RADIUS = 10
-SPEED = 10
+RADIUS = 11
+SPEED = 17
 
 class Player():
     pass
@@ -42,8 +42,21 @@ def keyboard(window, keycode, flag):
         else:
             player.speed_x -= SPEED
 
-def collide(x, y):
+def collide_x(x, y):
     new_x = x + player.speed_x
+    new_y = y
+
+    row = int(new_y // 100)
+    col = int(new_x // 100)
+    
+    if map[row][col] == "b":
+        return 'yes'
+    else:
+        return 'no'
+        
+
+def collide_y(x, y):
+    new_x = x
     new_y = y + player.speed_y
 
     row = int(new_y // 100)
@@ -76,21 +89,40 @@ gui_key_hook(window, keyboard)
 while True:
     gui_draw_circle(window, player.x, player.y, RADIUS, COLOR_BLACK)
     
-    
+    row = int(player.y // 100)
+    col = int(player.x // 100)
     a = RADIUS / math.sqrt(2)
-    if collide(player.x + RADIUS, player.y) == 'no' and \
-       collide(player.x - RADIUS, player.y) == 'no' and \
-       collide(player.x, player.y - RADIUS) == 'no' and \
-       collide(player.x, player.y + RADIUS) == 'no' and \
-       collide(player.x - a, player.y + a) == 'no' and \
-       collide(player.x - a, player.y - a) == 'no' and \
-       collide(player.x + a, player.y - a) == 'no' and \
-       collide(player.x + a, player.y + a) == 'no' :
-        player.x += player.speed_x
-        player.y += player.speed_y
-
+    
+    try:
+        if collide_x(player.x + RADIUS, player.y) == 'no' and \
+           collide_x(player.x - RADIUS, player.y) == 'no' and \
+           collide_x(player.x - a, player.y + a) == 'no' and \
+           collide_x(player.x - a, player.y - a) == 'no' and \
+           collide_x(player.x + a, player.y - a) == 'no' and \
+           collide_x(player.x + a, player.y + a) == 'no':
+            player.x += player.speed_x
+        else:
+            if player.speed_x > 0:
+                player.x = col * 100 + 100 - RADIUS - 1
+            elif player.speed_x < 0:
+                player.x = col * 100 + RADIUS + 1
+        
+        
+        if collide_y(player.x, player.y - RADIUS) == 'no' and \
+           collide_y(player.x, player.y + RADIUS) == 'no' and \
+           collide_y(player.x - a, player.y + a) == 'no' and \
+           collide_y(player.x - a, player.y - a) == 'no' and \
+           collide_y(player.x + a, player.y - a) == 'no' and \
+           collide_y(player.x + a, player.y + a) == 'no':
+            player.y += player.speed_y
+        else:
+            if player.speed_y > 0:
+                player.y = row * 100 + 100 - RADIUS - 1
+            elif player.speed_y < 0:
+                player.y = row * 100 + RADIUS + 1
+    except IndexError:
+        print("YOU WIN")
+        break
 
     gui_draw_circle(window, player.x, player.y, RADIUS, COLOR_GREEN)
     gui_draw(window)
-
-
